@@ -26,6 +26,7 @@
     <relativePath>../project/pom.xml</relativePath>
   </parent>
   <artifactId>jclouds-core</artifactId>
+  <groupId>arre.jclouds</groupId>
   <name>jclouds Components Core</name>
   <packaging>bundle</packaging>
   <description>Core components to access jclouds services</description>
@@ -139,7 +140,13 @@
       </plugin>
     </plugins>
   </build>
-
+  <distributionManagement>
+    <repository>
+      <id>clojars</id>
+      <name>Clojars repository</name>
+      <url>https://clojars.org/repo</url>
+    </repository>
+  </distributionManagement>
   <profiles>
     <profile>
       <id>distribution</id>
