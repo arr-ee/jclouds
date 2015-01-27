@@ -27,7 +27,7 @@
   </parent>
   <artifactId>jclouds-core</artifactId>
   <groupId>arre.jclouds</groupId>
-  <version>1.8.0-patched</version>
+  <version>1.8.0</version>
   <name>jclouds Components Core</name>
   <packaging>bundle</packaging>
   <description>Core components to access jclouds services</description>

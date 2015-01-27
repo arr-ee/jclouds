@@ -33,7 +33,7 @@ import com.google.common.io.Closeables;
 
 public class JcloudsVersion {
     @VisibleForTesting
-    static final String VERSION_RESOURCE_FILE = "META-INF/maven/org.apache.jclouds/jclouds-core/pom.properties";
+    static final String VERSION_RESOURCE_FILE = "META-INF/maven/arre.jclouds/jclouds-core/pom.properties";
     private static final String VERSION_PROPERTY_NAME = "version";
 
     /*
