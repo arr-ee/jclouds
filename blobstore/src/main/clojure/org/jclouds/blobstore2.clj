@@ -46,9 +46,9 @@ See http://code.google.com/p/jclouds for details."
            [org.jclouds.blobstore
             AsyncBlobStore domain.BlobBuilder BlobStore BlobStoreContext
             domain.BlobMetadata domain.StorageMetadata
-            domain.Blob domain.internal.BlobBuilderImpl
+            domain.Blob domain.internal.BlobBuilderImpl options.PutOptions
+            options.PutOptions$Builder
             options.CreateContainerOptions options.ListContainerOptions]
-           [org.jclouds.s3.blobstore options.S3PutOptions]
            [org.jclouds.io Payload Payloads]
            java.util.Arrays
            [java.security DigestOutputStream MessageDigest]
@@ -237,23 +237,13 @@ Options can also be specified for extension modules
   [^BlobStore blobstore container-name path]
   (.blobExists blobstore container-name path))
 
-;; TODO: This fn (and it's memoized wrapper) could be moved into an S3-specific namespace
-;; if desired.
-(defn s3-put-blob-options
-  "Generate the appropriate options for a put-blob call against an S3 API"
-  [multipart? ssencryption?]
-  (let [builder (S3PutOptions/builder)]
-    (if multipart? (.multipart builder))
-    (if ssencryption? (.serverSideEncryption builder))
-    (.build builder)))
-
-;; A nice bonus: S3PutOptions are truly immutable so the generator function above is referentially transparent
-(def ^:private put-blob-options-memo (memoize s3-put-blob-options))
-
 (defn put-blob
   "Put a blob.  Metadata in the blob determines location."
-  [^BlobStore blobstore container-name blob options]
-  (.putBlob blobstore container-name blob options))
+  [^BlobStore blobstore container-name blob & {:keys [multipart?]}]
+  (let [options (if multipart?
+                  (PutOptions$Builder/multipart)
+                  (PutOptions.))]
+    (.putBlob blobstore container-name blob options)))
 
 (defn blob-metadata
   "Get metadata from given path"
