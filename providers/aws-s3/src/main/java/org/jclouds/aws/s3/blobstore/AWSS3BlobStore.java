@@ -86,7 +86,7 @@ public class AWSS3BlobStore extends S3BlobStore {
    public String putBlob(String container, Blob blob, PutOptions options) {
       if (options.isMultipart()) {
          // need to use a provider if the strategy object is stateful
-         return multipartUploadStrategy.get().execute(container, blob);
+         return multipartUploadStrategy.get().execute(container, blob, options);
 
       } else if ((options instanceof AWSS3PutOptions) &&
          (((AWSS3PutOptions) options).getStorageClass() == REDUCED_REDUNDANCY)) {

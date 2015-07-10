@@ -48,6 +48,7 @@ import org.jclouds.s3.blobstore.functions.BucketToResourceList;
 import org.jclouds.s3.blobstore.functions.ContainerToBucketListOptions;
 import org.jclouds.s3.blobstore.functions.ObjectToBlob;
 import org.jclouds.s3.blobstore.functions.ObjectToBlobMetadata;
+import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.AccessControlList;
 import org.jclouds.s3.domain.AccessControlList.GroupGranteeURI;
 import org.jclouds.s3.domain.AccessControlList.Permission;
@@ -232,6 +233,18 @@ public class S3BlobStore extends BaseBlobStore {
       } catch (CacheLoader.InvalidCacheLoadException e) {
          // nulls not permitted from cache loader
       }
+      
+      /* If the input PutOptions is an AWSS3 instance check for server-side encryption support as well */
+      if (overrides instanceof S3PutOptions) {
+    	  
+    	  S3PutOptions s3Overrides = (S3PutOptions)overrides;
+    	  if (s3Overrides.usesServerSideEncryption()) {
+    		  
+    		  /* Called entirely for side effects... just like the call above!  Sigh. */
+    		  options.withServerSideEncryption(s3Overrides.getServerSideEncryptionAlgorithm());
+    	  }
+      }
+      
       return sync.putObject(container, blob2Object.apply(blob), options);
    }
 

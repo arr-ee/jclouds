@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.jclouds.aws.reference.AWSConstants.PROPERTY_HEADER_TAG;
 import static org.jclouds.s3.reference.S3Headers.CANNED_ACL;
 import static org.jclouds.s3.reference.S3Headers.DEFAULT_AMAZON_HEADERTAG;
+import static org.jclouds.s3.reference.S3Headers.SERVER_SIDE_ENCRYPTION;
 
 import java.util.Map.Entry;
 
@@ -57,6 +58,7 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
    public static final PutObjectOptions NONE = new PutObjectOptions();
 
    private CannedAccessPolicy acl = CannedAccessPolicy.PRIVATE;
+   private String cryptoAlgo = null;
 
    private String headerTag;
 
@@ -86,12 +88,24 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
          this.replaceHeader(CANNED_ACL, acl.toString());
       return this;
    }
+   
+   public PutObjectOptions withServerSideEncryption(String cryptoAlgo) {
+
+	   this.cryptoAlgo = checkNotNull(cryptoAlgo,"cryptoAlgo");
+	   this.replaceHeader(SERVER_SIDE_ENCRYPTION,cryptoAlgo);
+	   return this;
+   }
 
    /**
     * @see PutObjectOptions#withAcl(CannedAccessPolicy)
     */
    public CannedAccessPolicy getAcl() {
       return acl;
+   }
+   
+   public String getCrypto() {
+	   
+	   return this.cryptoAlgo;
    }
 
    public static class Builder {
@@ -103,5 +117,10 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
          PutObjectOptions options = new PutObjectOptions();
          return options.withAcl(acl);
       }
+      
+      public static PutObjectOptions withServerSideEncryption(String cryptoAlg) {
+          PutObjectOptions options = new PutObjectOptions();
+          return options.withServerSideEncryption(cryptoAlg);
+       }
    }
 }
