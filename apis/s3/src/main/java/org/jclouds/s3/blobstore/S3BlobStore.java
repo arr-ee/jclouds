@@ -48,7 +48,6 @@ import org.jclouds.s3.blobstore.functions.BucketToResourceList;
 import org.jclouds.s3.blobstore.functions.ContainerToBucketListOptions;
 import org.jclouds.s3.blobstore.functions.ObjectToBlob;
 import org.jclouds.s3.blobstore.functions.ObjectToBlobMetadata;
-import org.jclouds.s3.blobstore.options.S3PutObjectOptions;
 import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.AccessControlList;
 import org.jclouds.s3.domain.AccessControlList.GroupGranteeURI;
@@ -57,6 +56,7 @@ import org.jclouds.s3.domain.BucketMetadata;
 import org.jclouds.s3.domain.CannedAccessPolicy;
 import org.jclouds.s3.options.ListBucketOptions;
 import org.jclouds.s3.options.PutBucketOptions;
+import org.jclouds.s3.options.PutObjectOptions;
 import org.jclouds.s3.util.S3Utils;
 
 import com.google.common.base.Function;
@@ -225,7 +225,7 @@ public class S3BlobStore extends BaseBlobStore {
    @Override
    public String putBlob(String container, Blob blob, PutOptions overrides) {
       // TODO: Make use of options overrides
-      S3PutObjectOptions.Builder options = S3PutObjectOptions.builder();
+      PutObjectOptions.Builder options = PutObjectOptions.builder();
       try {
          AccessControlList acl = bucketAcls.getUnchecked(container);
          if (acl != null && acl.hasPermission(GroupGranteeURI.ALL_USERS, Permission.READ))

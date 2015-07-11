@@ -18,10 +18,10 @@ package org.jclouds.aws.s3;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.hash.Hashing.md5;
-import static org.jclouds.aws.s3.blobstore.options.AWSS3PutObjectOptions.Builder.storageClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
+import org.jclouds.aws.s3.blobstore.options.AWSS3PutObjectOptions;
 import org.jclouds.aws.s3.domain.DeleteResult;
 import org.jclouds.aws.s3.internal.BaseAWSS3ClientExpectTest;
 import org.jclouds.blobstore.domain.Blob;
@@ -84,7 +84,7 @@ public class AWSS3ClientExpectTest extends BaseAWSS3ClientExpectTest {
       );
 
       client.putObject("test", blobToObject.apply(blob),
-         storageClass(StorageClass.REDUCED_REDUNDANCY));
+         AWSS3PutObjectOptions.builder().storageClass(StorageClass.REDUCED_REDUNDANCY).build());
    }
 
    @Test

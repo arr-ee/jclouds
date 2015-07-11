@@ -34,7 +34,6 @@ import org.jclouds.io.Payload;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.logging.Logger;
 import org.jclouds.s3.blobstore.functions.BlobToObject;
-import org.jclouds.s3.blobstore.options.S3PutObjectOptions;
 import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
 import org.jclouds.s3.options.PutObjectOptions;
@@ -83,7 +82,7 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
 	   
 	   S3PutOptions s3Option = (S3PutOptions)option;	   
 	   return s3Option.usesServerSideEncryption() ? 
-			   S3PutObjectOptions.builder().serverSideEncryption().build() :
+			   PutObjectOptions.builder().serverSideEncryption().build() :
 				   PutObjectOptions.NONE;
    }
 
