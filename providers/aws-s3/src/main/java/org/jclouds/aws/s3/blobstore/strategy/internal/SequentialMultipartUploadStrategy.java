@@ -34,6 +34,7 @@ import org.jclouds.io.Payload;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.logging.Logger;
 import org.jclouds.s3.blobstore.functions.BlobToObject;
+import org.jclouds.s3.blobstore.options.S3PutObjectOptions;
 import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
 import org.jclouds.s3.options.PutObjectOptions;
@@ -80,9 +81,9 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
 	   PutOptions option = options[0];
 	   if (option == null || (! (option instanceof S3PutOptions))) { return PutObjectOptions.NONE; }
 	   
-	   S3PutOptions s3Option = (S3PutOptions)option;
+	   S3PutOptions s3Option = (S3PutOptions)option;	   
 	   return s3Option.usesServerSideEncryption() ? 
-			   PutObjectOptions.Builder.withServerSideEncryption(s3Option.getServerSideEncryptionAlgorithm()) :
+			   S3PutObjectOptions.builder().serverSideEncryption().build() :
 				   PutObjectOptions.NONE;
    }
 
@@ -119,7 +120,7 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
       } else {
          // TODO: find a way to disable multipart. if we pass the original
          // options, it goes into a stack overflow
-         return client.putObject(container, blobToObject.apply(blob));
+         return client.putObject(container, blobToObject.apply(blob), createPutObjectOptions(options));
       }
    }
 

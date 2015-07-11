@@ -16,6 +16,7 @@
  */
 package org.jclouds.aws.s3.blobstore.options;
 
+import org.jclouds.s3.blobstore.options.S3PutObjectOptions;
 import org.jclouds.s3.domain.CannedAccessPolicy;
 import org.jclouds.s3.domain.ObjectMetadata;
 import org.jclouds.s3.options.PutObjectOptions;
@@ -26,8 +27,13 @@ import org.jclouds.s3.reference.S3Headers;
  *
  * @see PutObjectOptions
  */
-public class AWSS3PutObjectOptions extends PutObjectOptions {
+public class AWSS3PutObjectOptions extends S3PutObjectOptions {
 
+	public AWSS3PutObjectOptions() {
+		
+		super(false);
+	}
+	
    public static class Builder {
 
       /**
