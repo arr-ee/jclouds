@@ -190,7 +190,7 @@ public class StubS3AsyncClient implements S3AsyncClient {
 
    public ListenableFuture<String> putObject(final String bucketName, final S3Object object,
             PutObjectOptions... nullableOptions) {
-      final PutObjectOptions options = (nullableOptions.length == 0) ? PutObjectOptions.NONE : nullableOptions[0];
+      final PutObjectOptions options = (nullableOptions.length == 0) ? PutObjectOptions.DEFAULTS : nullableOptions[0];
       if (options.getAcl() != null)
          keyToAcl.put(bucketName + "/" + object.getMetadata().getKey(), options.getAcl());
       return blobStore.putBlob(bucketName, object2Blob.apply(object));

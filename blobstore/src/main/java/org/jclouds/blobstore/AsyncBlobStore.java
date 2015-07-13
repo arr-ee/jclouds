@@ -24,6 +24,7 @@ import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.CreateContainerOptions;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.options.PutOptions;
@@ -112,6 +113,8 @@ public interface AsyncBlobStore {
     */
    ListenableFuture<Boolean> directoryExists(String container, String directory);
 
+   ListenableFuture<Void> createDirectory(String container, String directory, CreateDirectoryOptions options);
+   
    /**
     * @see BlobStore#createDirectory
     */

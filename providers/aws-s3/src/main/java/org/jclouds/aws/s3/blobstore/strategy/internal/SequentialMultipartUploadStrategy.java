@@ -76,14 +76,14 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
 	   
 	   Preconditions.checkArgument(options != null, "Input PutOptions can't be null");
 	   Preconditions.checkArgument(options.length <= 1,"We don't support multiple PutOptions");
-	   if (options.length == 0) { return PutObjectOptions.NONE; }
+	   if (options.length == 0) { return PutObjectOptions.DEFAULTS; }
 	   PutOptions option = options[0];
-	   if (option == null || (! (option instanceof S3PutOptions))) { return PutObjectOptions.NONE; }
+	   if (option == null || (! (option instanceof S3PutOptions))) { return PutObjectOptions.DEFAULTS; }
 	   
 	   S3PutOptions s3Option = (S3PutOptions)option;	   
 	   return s3Option.usesServerSideEncryption() ? 
 			   PutObjectOptions.builder().serverSideEncryption().build() :
-				   PutObjectOptions.NONE;
+				   PutObjectOptions.DEFAULTS;
    }
 
    @Override

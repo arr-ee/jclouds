@@ -32,8 +32,10 @@ import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.util.BlobUtils;
+import org.jclouds.blobstore.util.internal.BlobUtilsImpl;
 import org.jclouds.collect.Memoized;
 import org.jclouds.domain.Location;
 
@@ -106,7 +108,13 @@ public abstract class BaseBlobStore implements BlobStore {
    public void createDirectory(String containerName, String directory) {
       blobUtils.createDirectory(containerName, directory);
    }
-
+   
+   /* Base impl for version with options is to ignore those options... individual impls can do something more
+    * intelligent if desired. */
+   public void createDirectory(String containerName, String directory, CreateDirectoryOptions options) {   
+	   createDirectory(containerName, directory);
+   }
+   
    /**
     * This implementation invokes {@link #countBlobs} with the
     * {@link ListContainerOptions#recursive} option.

@@ -16,6 +16,7 @@
  */
 package org.jclouds.blobstore.strategy;
 
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.strategy.internal.MarkerFileMkdirStrategy;
 
 import com.google.inject.ImplementedBy;
@@ -27,4 +28,6 @@ import com.google.inject.ImplementedBy;
 public interface MkdirStrategy {
 
    void execute(String containerName, String directory);
+   
+   void execute(String containerName, String directory, CreateDirectoryOptions options);
 }

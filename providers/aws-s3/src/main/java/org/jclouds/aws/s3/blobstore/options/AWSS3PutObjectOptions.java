@@ -16,7 +16,6 @@
  */
 package org.jclouds.aws.s3.blobstore.options;
 
-import org.jclouds.s3.domain.CannedAccessPolicy;
 import org.jclouds.s3.domain.ObjectMetadata;
 import org.jclouds.s3.options.PutObjectOptions;
 import org.jclouds.s3.reference.S3Headers;
@@ -30,20 +29,13 @@ public class AWSS3PutObjectOptions extends PutObjectOptions {
 
 	public static final ObjectMetadata.StorageClass DEFAULT_STORAGE_CLASS = ObjectMetadata.StorageClass.STANDARD;
 
-	private PutObjectOptions s3Options;
-	private ObjectMetadata.StorageClass storageClass;
+	private final ObjectMetadata.StorageClass storageClass;
 
 	protected AWSS3PutObjectOptions(PutObjectOptions s3Options, ObjectMetadata.StorageClass storageClass) {
 
-		this.s3Options = s3Options;
+		super(s3Options.getAcl(),s3Options.usesServerSideEncryption());
 		this.storageClass = storageClass;
 	}
-
-	@Override
-	public CannedAccessPolicy getAcl() { return this.s3Options.getAcl(); }
-
-	@Override
-	public boolean usesServerSideEncryption() { return this.s3Options.usesServerSideEncryption(); }
 
 	public ObjectMetadata.StorageClass getStorageClass() {
 		return storageClass;

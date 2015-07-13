@@ -20,8 +20,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Provider;
 
+import org.jclouds.blobstore.AsyncBlobStore;
 import org.jclouds.blobstore.LocalStorageStrategy;
 import org.jclouds.blobstore.domain.BlobBuilder;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.util.BlobUtils;
 import org.jclouds.filesystem.strategy.internal.FilesystemStorageStrategyImpl;
@@ -57,7 +59,12 @@ public class FileSystemBlobUtilsImpl implements BlobUtils {
    public void createDirectory(String containerName, String directory) {
       storageStrategy.createDirectory(containerName, directory);
    }
-
+   
+   @Override
+   public void createDirectory(String containerName, String directory, CreateDirectoryOptions options) {
+	   createDirectory(containerName, directory);
+   }
+   
    @Override
    public long countBlobs(String container, ListContainerOptions options) {
       return storageStrategy.countBlobs(container, options);

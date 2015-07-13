@@ -57,21 +57,16 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
 
 	/* Currently the only value supported for server-side encryption */
 	public static final String DEFAULT_CRYPTO_ALGORITHM = "AES256";
+	
 	public static final CannedAccessPolicy DEFAULT_ACCESS_POLICY = CannedAccessPolicy.PRIVATE;
-
-	public static final PutObjectOptions NONE = new PutObjectOptions();
+	public static final boolean DEFAULT_SERVER_SIDE_ENCRYPTION = false;
+	public static final PutObjectOptions DEFAULTS = new PutObjectOptions(DEFAULT_ACCESS_POLICY,DEFAULT_SERVER_SIDE_ENCRYPTION);
 
 	private String headerTag;
 
-	private boolean useServerSideEncryption;
-	private CannedAccessPolicy acl = CannedAccessPolicy.PRIVATE;
+	protected final boolean useServerSideEncryption;
+	protected final CannedAccessPolicy acl;
 
-	protected PutObjectOptions() {
-		
-		this.acl = DEFAULT_ACCESS_POLICY;
-		this.useServerSideEncryption = false;
-	}
-	
 	protected PutObjectOptions(CannedAccessPolicy acl, boolean useServerSideEncryption) {
 
 		this.acl = acl;
@@ -109,7 +104,7 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
 
 		protected Builder() {
 
-			this.useServerSideEncryption = false;
+			this.useServerSideEncryption = DEFAULT_SERVER_SIDE_ENCRYPTION;
 			this.acl = DEFAULT_ACCESS_POLICY;
 		}
 
