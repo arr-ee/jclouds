@@ -107,12 +107,12 @@ public class AWSS3AsyncBlobStore extends S3AsyncBlobStore {
    }
 
    private ListenableFuture<String> putBlobWithReducedRedundancy(String container, Blob blob) {
-      AWSS3PutObjectOptions options = new AWSS3PutObjectOptions();
+      AWSS3PutObjectOptions.Builder options = AWSS3PutObjectOptions.builder();
       try {
          AccessControlList acl = bucketAcls.getUnchecked(container);
          if (acl != null && acl.hasPermission(AccessControlList.GroupGranteeURI.ALL_USERS,
                                               AccessControlList.Permission.READ)) {
-            options.withAcl(CannedAccessPolicy.PUBLIC_READ);
+            options.acl(CannedAccessPolicy.PUBLIC_READ);
          }
          options.storageClass(ObjectMetadata.StorageClass.REDUCED_REDUNDANCY);
 
@@ -120,7 +120,7 @@ public class AWSS3AsyncBlobStore extends S3AsyncBlobStore {
          // nulls not permitted from cache loader
       }
       return getContext().unwrap(AWSS3ApiMetadata.CONTEXT_TOKEN).getAsyncApi().putObject(container,
-               blob2Object.apply(blob), options);
+               blob2Object.apply(blob), options.build());
   }
 
    @Override

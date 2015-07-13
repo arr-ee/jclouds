@@ -16,11 +16,11 @@
  */
 package org.jclouds.s3.options;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.jclouds.aws.reference.AWSConstants.PROPERTY_HEADER_TAG;
 import static org.jclouds.s3.reference.S3Headers.CANNED_ACL;
 import static org.jclouds.s3.reference.S3Headers.DEFAULT_AMAZON_HEADERTAG;
+import static org.jclouds.s3.reference.S3Headers.SERVER_SIDE_ENCRYPTION;
 
 import java.util.Map.Entry;
 
@@ -54,54 +54,83 @@ import com.google.common.collect.Multimap;
  *      />
  */
 public class PutObjectOptions extends BaseHttpRequestOptions {
-   public static final PutObjectOptions NONE = new PutObjectOptions();
 
-   private CannedAccessPolicy acl = CannedAccessPolicy.PRIVATE;
+	/* Currently the only value supported for server-side encryption */
+	public static final String DEFAULT_CRYPTO_ALGORITHM = "AES256";
+	
+	public static final CannedAccessPolicy DEFAULT_ACCESS_POLICY = CannedAccessPolicy.PRIVATE;
+	public static final boolean DEFAULT_SERVER_SIDE_ENCRYPTION = false;
+	public static final PutObjectOptions DEFAULTS = new PutObjectOptions(DEFAULT_ACCESS_POLICY,DEFAULT_SERVER_SIDE_ENCRYPTION);
 
-   private String headerTag;
+	private String headerTag;
 
-   @Inject
-   public void setHeaderTag(@Named(PROPERTY_HEADER_TAG) String headerTag) {
-      this.headerTag = headerTag;
-   }
+	protected final boolean useServerSideEncryption;
+	protected final CannedAccessPolicy acl;
 
-   @Override
-   public Multimap<String, String> buildRequestHeaders() {
-      checkState(headerTag != null, "headerTag should have been injected!");
-      ImmutableMultimap.Builder<String, String> returnVal = ImmutableMultimap.builder();
-      for (Entry<String, String> entry : headers.entries()) {
-         returnVal.put(entry.getKey().replace(DEFAULT_AMAZON_HEADERTAG, headerTag), entry.getValue());
-      }
-      return returnVal.build();
-   }
+	protected PutObjectOptions(CannedAccessPolicy acl, boolean useServerSideEncryption) {
 
-   /**
-    * Override the default ACL (private) with the specified one.
-    * 
-    * @see CannedAccessPolicy
-    */
-   public PutObjectOptions withAcl(CannedAccessPolicy acl) {
-      this.acl = checkNotNull(acl, "acl");
-      if (!acl.equals(CannedAccessPolicy.PRIVATE))
-         this.replaceHeader(CANNED_ACL, acl.toString());
-      return this;
-   }
+		this.acl = acl;
+		this.useServerSideEncryption = useServerSideEncryption;
+	}
 
-   /**
-    * @see PutObjectOptions#withAcl(CannedAccessPolicy)
-    */
-   public CannedAccessPolicy getAcl() {
-      return acl;
-   }
+	@Inject
+	public void setHeaderTag(@Named(PROPERTY_HEADER_TAG) String headerTag) {
+		this.headerTag = headerTag;
+	}
 
-   public static class Builder {
+	@Override
+	public Multimap<String, String> buildRequestHeaders() {
+		checkState(headerTag != null, "headerTag should have been injected!");
+		ImmutableMultimap.Builder<String, String> returnVal = ImmutableMultimap.builder();
+		for (Entry<String, String> entry : headers.entries()) {
+			returnVal.put(entry.getKey().replace(DEFAULT_AMAZON_HEADERTAG, headerTag), entry.getValue());
+		}
+		return returnVal.build();
+	}
 
-      /**
-       * @see PutObjectOptions#withAcl(CannedAccessPolicy)
-       */
-      public static PutObjectOptions withAcl(CannedAccessPolicy acl) {
-         PutObjectOptions options = new PutObjectOptions();
-         return options.withAcl(acl);
-      }
-   }
+	/**
+	 * @see PutObjectOptions#withAcl(CannedAccessPolicy)
+	 */
+	public CannedAccessPolicy getAcl() { return acl; }
+
+	public boolean usesServerSideEncryption() { return this.useServerSideEncryption; }
+	
+	public static Builder builder() { return new Builder(); }
+
+	public static class Builder {
+
+		private boolean useServerSideEncryption;
+		private CannedAccessPolicy acl;
+
+		protected Builder() {
+
+			this.useServerSideEncryption = DEFAULT_SERVER_SIDE_ENCRYPTION;
+			this.acl = DEFAULT_ACCESS_POLICY;
+		}
+
+		public Builder serverSideEncryption() {
+
+			this.useServerSideEncryption = true;
+			return this;
+		}
+
+		public Builder acl(CannedAccessPolicy acl) {
+
+			this.acl = acl;
+			return this;
+		}
+
+		public PutObjectOptions build() {
+
+			PutObjectOptions rv = new PutObjectOptions(this.acl, this.useServerSideEncryption);
+			if (this.useServerSideEncryption) {
+				rv.replaceHeader(SERVER_SIDE_ENCRYPTION, DEFAULT_CRYPTO_ALGORITHM);
+			}
+
+			if (!acl.equals(CannedAccessPolicy.PRIVATE))
+				rv.replaceHeader(CANNED_ACL, acl.toString());
+
+			return rv;
+		}
+	}
 }

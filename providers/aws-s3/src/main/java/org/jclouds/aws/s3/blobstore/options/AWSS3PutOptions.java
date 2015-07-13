@@ -16,13 +16,13 @@
  */
 package org.jclouds.aws.s3.blobstore.options;
 
-import org.jclouds.blobstore.options.PutOptions;
+import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.ObjectMetadata;
 
 /**
  * Contains AWS-S3 specific options supported in the put blob operation
  */
-public class AWSS3PutOptions extends PutOptions {
+public class AWSS3PutOptions extends S3PutOptions {
 
    public static class Builder {
 

@@ -24,7 +24,6 @@ import static org.jclouds.s3.options.CopyObjectOptions.Builder.ifSourceModifiedS
 import static org.jclouds.s3.options.CopyObjectOptions.Builder.ifSourceUnmodifiedSince;
 import static org.jclouds.s3.options.CopyObjectOptions.Builder.overrideAcl;
 import static org.jclouds.s3.options.CopyObjectOptions.Builder.overrideMetadataWith;
-import static org.jclouds.s3.options.PutObjectOptions.Builder.withAcl;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -98,7 +97,7 @@ public class S3ClientLiveTest extends BaseBlobStoreIntegrationTest {
          object.setPayload(TEST_STRING);
          getApi().putObject(containerName, object,
 
-         withAcl(CannedAccessPolicy.PUBLIC_READ));
+         PutObjectOptions.builder().acl(CannedAccessPolicy.PUBLIC_READ).build());
 
          URL url = this.getObjectURL(containerName, key);
          Strings2.toStringAndClose(url.openStream());
@@ -142,7 +141,7 @@ public class S3ClientLiveTest extends BaseBlobStoreIntegrationTest {
          // Public Read-Write object
          getApi()
                   .putObject(containerName, object,
-                           new PutObjectOptions().withAcl(CannedAccessPolicy.PUBLIC_READ_WRITE));
+                           PutObjectOptions.builder().acl(CannedAccessPolicy.PUBLIC_READ_WRITE).build());
 
          assertConsistencyAware(new Runnable() {
             public void run() {
@@ -240,7 +239,7 @@ public class S3ClientLiveTest extends BaseBlobStoreIntegrationTest {
          S3Object object = getApi().newS3Object();
          object.getMetadata().setKey(publicReadObjectKey);
          object.setPayload("");
-         getApi().putObject(containerName, object, new PutObjectOptions().withAcl(CannedAccessPolicy.PUBLIC_READ));
+         getApi().putObject(containerName, object, PutObjectOptions.builder().acl(CannedAccessPolicy.PUBLIC_READ).build());
 
          assertConsistencyAware(new Runnable() {
             public void run() {

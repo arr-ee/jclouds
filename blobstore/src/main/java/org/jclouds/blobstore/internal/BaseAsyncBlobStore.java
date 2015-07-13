@@ -35,8 +35,10 @@ import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.util.BlobUtils;
+import org.jclouds.blobstore.util.internal.BlobUtilsImpl;
 import org.jclouds.collect.Memoized;
 import org.jclouds.domain.Location;
 
@@ -204,6 +206,21 @@ public abstract class BaseAsyncBlobStore implements AsyncBlobStore {
             return "directoryExists(" + containerName + "," + directory + ")";
          }
       });
+   }
+   
+   public ListenableFuture<Void> createDirectory(final String containerName, final String directory, final CreateDirectoryOptions options) {
+	      return blobUtils.directoryExists(containerName, directory) ? Futures.immediateFuture((Void) null)
+	               : userExecutor.submit(new Callable<Void>() {
+	                  public Void call() throws Exception {
+	                     blobUtils.createDirectory(containerName, directory, options);
+	                     return null;
+	                  }
+
+	                  @Override
+	                  public String toString() {
+	                     return "createDirectory(" + containerName + "," + directory + ", " + options + ")";
+	                  }
+	               });
    }
 
    /**

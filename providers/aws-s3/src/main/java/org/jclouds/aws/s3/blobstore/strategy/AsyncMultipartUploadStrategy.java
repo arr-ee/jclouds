@@ -28,7 +28,8 @@ import com.google.inject.ImplementedBy;
  */
 @ImplementedBy(ParallelMultipartUploadStrategy.class)
 public interface AsyncMultipartUploadStrategy extends MultipartUpload {
+
+   ListenableFuture<String> execute(String container, Blob blob);
    
    ListenableFuture<String> execute(String container, Blob blob, PutOptions options);
-
 }

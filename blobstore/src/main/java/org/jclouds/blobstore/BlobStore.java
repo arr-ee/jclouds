@@ -24,6 +24,7 @@ import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.CreateContainerOptions;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.options.PutOptions;
@@ -170,6 +171,8 @@ public interface BlobStore {
     * @param directory
     *           full path to the directory
     */
+   void createDirectory(String container, String directory, CreateDirectoryOptions options);
+   
    void createDirectory(String container, String directory);
 
    /**

@@ -23,6 +23,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.jclouds.blobstore.domain.BlobBuilder;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.strategy.ClearListStrategy;
 import org.jclouds.blobstore.strategy.CountListStrategy;
@@ -37,48 +38,52 @@ import org.jclouds.blobstore.util.BlobUtils;
 @Singleton
 public class BlobUtilsImpl implements BlobUtils {
 
-   protected final Provider<BlobBuilder> blobBuilders;
-   protected final ClearListStrategy clearContainerStrategy;
-   protected final GetDirectoryStrategy getDirectoryStrategy;
-   protected final MkdirStrategy mkdirStrategy;
-   protected final DeleteDirectoryStrategy rmDirStrategy;
-   protected final CountListStrategy countBlobsStrategy;
+	protected final Provider<BlobBuilder> blobBuilders;
+	protected final ClearListStrategy clearContainerStrategy;
+	protected final GetDirectoryStrategy getDirectoryStrategy;
+	protected final MkdirStrategy mkdirStrategy;
+	protected final DeleteDirectoryStrategy rmDirStrategy;
+	protected final CountListStrategy countBlobsStrategy;
 
-   @Inject
-   protected BlobUtilsImpl(Provider<BlobBuilder> blobBuilders, ClearListStrategy clearContainerStrategy,
-         GetDirectoryStrategy getDirectoryStrategy, MkdirStrategy mkdirStrategy, CountListStrategy countBlobsStrategy,
-         DeleteDirectoryStrategy rmDirStrategy) {
-      this.blobBuilders = checkNotNull(blobBuilders, "blobBuilders");
-      this.clearContainerStrategy = checkNotNull(clearContainerStrategy, "clearContainerStrategy");
-      this.getDirectoryStrategy = checkNotNull(getDirectoryStrategy, "getDirectoryStrategy");
-      this.mkdirStrategy = checkNotNull(mkdirStrategy, "mkdirStrategy");
-      this.rmDirStrategy = checkNotNull(rmDirStrategy, "rmDirStrategy");
-      this.countBlobsStrategy = checkNotNull(countBlobsStrategy, "countBlobsStrategy");
-   }
-   
-   @Override
-   public BlobBuilder blobBuilder() {
-      return blobBuilders.get();
-   }
+	@Inject
+	protected BlobUtilsImpl(Provider<BlobBuilder> blobBuilders, ClearListStrategy clearContainerStrategy,
+			GetDirectoryStrategy getDirectoryStrategy, MkdirStrategy mkdirStrategy, CountListStrategy countBlobsStrategy,
+			DeleteDirectoryStrategy rmDirStrategy) {
+		this.blobBuilders = checkNotNull(blobBuilders, "blobBuilders");
+		this.clearContainerStrategy = checkNotNull(clearContainerStrategy, "clearContainerStrategy");
+		this.getDirectoryStrategy = checkNotNull(getDirectoryStrategy, "getDirectoryStrategy");
+		this.mkdirStrategy = checkNotNull(mkdirStrategy, "mkdirStrategy");
+		this.rmDirStrategy = checkNotNull(rmDirStrategy, "rmDirStrategy");
+		this.countBlobsStrategy = checkNotNull(countBlobsStrategy, "countBlobsStrategy");
+	}
 
-   public boolean directoryExists(String containerName, String directory) {
-      return getDirectoryStrategy.execute(containerName, directory) != null;
-   }
+	@Override
+	public BlobBuilder blobBuilder() {
+		return blobBuilders.get();
+	}
 
-   public void createDirectory(String containerName, String directory) {
-      mkdirStrategy.execute(containerName, directory);
-   }
+	public boolean directoryExists(String containerName, String directory) {
+		return getDirectoryStrategy.execute(containerName, directory) != null;
+	}
 
-   public long countBlobs(String container, ListContainerOptions options) {
-      return countBlobsStrategy.execute(container, options);
-   }
+	public void createDirectory(String containerName, String directory) {
+		mkdirStrategy.execute(containerName, directory);
+	}
 
-   public void clearContainer(String container, ListContainerOptions options) {
-      clearContainerStrategy.execute(container, options);
-   }
+	public void createDirectory(String containerName, String directory, CreateDirectoryOptions options) {
+		mkdirStrategy.execute(containerName, directory, options);
+	}
 
-   public void deleteDirectory(String container, String directory) {
-      rmDirStrategy.execute(container, directory);
-   }
+	public long countBlobs(String container, ListContainerOptions options) {
+		return countBlobsStrategy.execute(container, options);
+	}
+
+	public void clearContainer(String container, ListContainerOptions options) {
+		clearContainerStrategy.execute(container, options);
+	}
+
+	public void deleteDirectory(String container, String directory) {
+		rmDirStrategy.execute(container, directory);
+	}
 
 }

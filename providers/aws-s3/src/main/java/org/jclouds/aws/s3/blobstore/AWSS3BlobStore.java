@@ -86,7 +86,7 @@ public class AWSS3BlobStore extends S3BlobStore {
    public String putBlob(String container, Blob blob, PutOptions options) {
       if (options.isMultipart()) {
          // need to use a provider if the strategy object is stateful
-         return multipartUploadStrategy.get().execute(container, blob);
+         return multipartUploadStrategy.get().execute(container, blob, options);
 
       } else if ((options instanceof AWSS3PutOptions) &&
          (((AWSS3PutOptions) options).getStorageClass() == REDUCED_REDUNDANCY)) {
@@ -98,12 +98,12 @@ public class AWSS3BlobStore extends S3BlobStore {
    }
 
    private String putBlobWithReducedRedundancy(String container, Blob blob) {
-      AWSS3PutObjectOptions options = new AWSS3PutObjectOptions();
+      AWSS3PutObjectOptions.Builder options = AWSS3PutObjectOptions.builder();
       try {
          AccessControlList acl = bucketAcls.getUnchecked(container);
          if (acl != null && acl.hasPermission(AccessControlList.GroupGranteeURI.ALL_USERS,
                                               AccessControlList.Permission.READ)) {
-            options.withAcl(CannedAccessPolicy.PUBLIC_READ);
+            options.acl(CannedAccessPolicy.PUBLIC_READ);
          }
          options.storageClass(ObjectMetadata.StorageClass.REDUCED_REDUNDANCY);
 
@@ -111,7 +111,7 @@ public class AWSS3BlobStore extends S3BlobStore {
          // nulls not permitted from cache loader
       }
       return getContext().unwrap(AWSS3ApiMetadata.CONTEXT_TOKEN).getApi().putObject(container, blob2Object.apply(blob),
-               options);
+               options.build());
    }
 
    @Override

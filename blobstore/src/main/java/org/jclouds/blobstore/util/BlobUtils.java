@@ -17,6 +17,7 @@
 package org.jclouds.blobstore.util;
 
 import org.jclouds.blobstore.domain.BlobBuilder;
+import org.jclouds.blobstore.options.CreateDirectoryOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.util.internal.BlobUtilsImpl;
 
@@ -29,6 +30,8 @@ public interface BlobUtils {
    boolean directoryExists(String containerName, String directory);
 
    void createDirectory(String containerName, String directory);
+   
+   void createDirectory(String containerName, String directory, CreateDirectoryOptions options);
 
    long countBlobs(String container, ListContainerOptions options);
 

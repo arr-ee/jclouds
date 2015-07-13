@@ -236,15 +236,15 @@ public class S3AsyncBlobStore extends BaseAsyncBlobStore {
    @Override
    public ListenableFuture<String> putBlob(String container, Blob blob, PutOptions overrides) {
       // TODO: Make use of options overrides
-      PutObjectOptions options = new PutObjectOptions();
+      PutObjectOptions.Builder options = PutObjectOptions.builder();
       try {
          AccessControlList acl = bucketAcls.getUnchecked(container);
          if (acl.hasPermission(GroupGranteeURI.ALL_USERS, Permission.READ))
-            options.withAcl(CannedAccessPolicy.PUBLIC_READ);
+            options.acl(CannedAccessPolicy.PUBLIC_READ);
       } catch (CacheLoader.InvalidCacheLoadException e) {
          // nulls not permitted from cache loader
       }
-      return async.putObject(container, blob2Object.apply(blob), options);
+      return async.putObject(container, blob2Object.apply(blob), options.build());
    }
 
    /**

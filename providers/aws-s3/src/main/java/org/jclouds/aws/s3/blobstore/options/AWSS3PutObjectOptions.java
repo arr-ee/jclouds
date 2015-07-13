@@ -16,7 +16,6 @@
  */
 package org.jclouds.aws.s3.blobstore.options;
 
-import org.jclouds.s3.domain.CannedAccessPolicy;
 import org.jclouds.s3.domain.ObjectMetadata;
 import org.jclouds.s3.options.PutObjectOptions;
 import org.jclouds.s3.reference.S3Headers;
@@ -28,41 +27,44 @@ import org.jclouds.s3.reference.S3Headers;
  */
 public class AWSS3PutObjectOptions extends PutObjectOptions {
 
-   public static class Builder {
+	public static final ObjectMetadata.StorageClass DEFAULT_STORAGE_CLASS = ObjectMetadata.StorageClass.STANDARD;
 
-      /**
-       * @see AWSS3PutObjectOptions#storageClass
-       */
-      public static AWSS3PutObjectOptions storageClass(ObjectMetadata.StorageClass storageClass) {
-         AWSS3PutObjectOptions options = new AWSS3PutObjectOptions();
-         return options.storageClass(storageClass);
-      }
+	private final ObjectMetadata.StorageClass storageClass;
 
-      /**
-       * @see AWSS3PutObjectOptions#withAcl
-       */
-      public static AWSS3PutObjectOptions withAcl(CannedAccessPolicy acl) {
-         AWSS3PutObjectOptions options = new AWSS3PutObjectOptions();
-         return options.withAcl(acl);
-      }
-   }
+	protected AWSS3PutObjectOptions(PutObjectOptions s3Options, ObjectMetadata.StorageClass storageClass) {
 
-   private ObjectMetadata.StorageClass storageClass = ObjectMetadata.StorageClass.STANDARD;
+		super(s3Options.getAcl(),s3Options.usesServerSideEncryption());
+		this.storageClass = storageClass;
+	}
 
-   public AWSS3PutObjectOptions storageClass(ObjectMetadata.StorageClass storageClass) {
-      this.storageClass = storageClass;
-      if (storageClass != ObjectMetadata.StorageClass.STANDARD) {
-         this.replaceHeader(S3Headers.STORAGE_CLASS, this.storageClass.toString());
-      }
-      return this;
-   }
+	public ObjectMetadata.StorageClass getStorageClass() {
+		return storageClass;
+	}
+	
+	public static Builder builder() { return new Builder(); }
 
-   public ObjectMetadata.StorageClass getStorageClass() {
-      return storageClass;
-   }
+	public static class Builder extends PutObjectOptions.Builder {
 
-   @Override
-   public AWSS3PutObjectOptions withAcl(CannedAccessPolicy acl) {
-      return (AWSS3PutObjectOptions) super.withAcl(acl);
-   }
+		private ObjectMetadata.StorageClass storageClass;
+
+		protected Builder() {
+
+			this.storageClass = DEFAULT_STORAGE_CLASS;
+		}
+
+		public Builder storageClass(ObjectMetadata.StorageClass storageClass) {
+
+			this.storageClass = storageClass;
+			return this;
+		}
+
+		public AWSS3PutObjectOptions build() {
+
+			AWSS3PutObjectOptions rv = new AWSS3PutObjectOptions(super.build(),this.storageClass);
+			if (storageClass != ObjectMetadata.StorageClass.STANDARD) {
+				rv.replaceHeader(S3Headers.STORAGE_CLASS, this.storageClass.toString());
+			}
+			return rv;
+		}
+	}
 }

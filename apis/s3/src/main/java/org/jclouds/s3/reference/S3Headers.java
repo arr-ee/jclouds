@@ -126,4 +126,6 @@ public interface S3Headers {
     * Instruction file header to be placed in the metadata of instruction files
     */
    public static final String CRYPTO_INSTRUCTION_FILE = HEADER_PREFIX + "crypto-instr-file";
+   
+   public static final String SERVER_SIDE_ENCRYPTION = HEADER_PREFIX + "server-side-encryption";
 }

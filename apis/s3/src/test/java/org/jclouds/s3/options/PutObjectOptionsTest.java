@@ -16,7 +16,6 @@
  */
 package org.jclouds.s3.options;
 
-import static org.jclouds.s3.options.PutObjectOptions.Builder.withAcl;
 import static org.testng.Assert.assertEquals;
 
 import org.jclouds.s3.domain.CannedAccessPolicy;
@@ -33,20 +32,20 @@ public class PutObjectOptionsTest {
 
    @Test
    public void testAclDefault() {
-      PutObjectOptions options = new PutObjectOptions();
+      PutObjectOptions options = PutObjectOptions.DEFAULTS;
       assertEquals(options.getAcl(), CannedAccessPolicy.PRIVATE);
    }
 
    @Test
    public void testAclStatic() {
-      PutObjectOptions options = withAcl(CannedAccessPolicy.AUTHENTICATED_READ);
+      PutObjectOptions options = PutObjectOptions.builder().acl(CannedAccessPolicy.AUTHENTICATED_READ).build();
       assertEquals(options.getAcl(), CannedAccessPolicy.AUTHENTICATED_READ);
    }
 
    @Test
    void testBuildRequestHeaders() {
 
-      PutObjectOptions options = withAcl(CannedAccessPolicy.AUTHENTICATED_READ);
+      PutObjectOptions options = PutObjectOptions.builder().acl(CannedAccessPolicy.AUTHENTICATED_READ).build();
       options.setHeaderTag(S3Headers.DEFAULT_AMAZON_HEADERTAG);
 
       Multimap<String, String> headers = options.buildRequestHeaders();
