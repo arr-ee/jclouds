@@ -107,6 +107,15 @@ public interface AWSS3AsyncClient extends S3AsyncClient {
             @Bucket @EndpointParam(parser = AssignCorrectHostnameForBucket.class) @BinderParam(BindAsHostPrefixIfConfigured.class) @ParamValidators(BucketNameValidator.class) String bucketName,
             @PathParam("key") String key, @QueryParam("partNumber") int partNumber,
             @QueryParam("uploadId") String uploadId, Payload part);
+   
+   @Named("PutObject")
+   @PUT
+   @Path("/{key}")
+   @ResponseParser(ParseETagHeader.class)
+   ListenableFuture<String> uploadPart(
+            @Bucket @EndpointParam(parser = AssignCorrectHostnameForBucket.class) @BinderParam(BindAsHostPrefixIfConfigured.class) @ParamValidators(BucketNameValidator.class) String bucketName,
+            @PathParam("key") String key, @QueryParam("partNumber") int partNumber,
+            @QueryParam("uploadId") String uploadId, Payload part, PutObjectOptions options);
 
    /**
     * @see AWSS3Client#completeMultipartUpload

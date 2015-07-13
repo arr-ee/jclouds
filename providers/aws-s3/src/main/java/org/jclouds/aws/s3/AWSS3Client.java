@@ -103,6 +103,11 @@ public interface AWSS3Client extends S3Client {
     */
    String uploadPart(String bucketName, String key, int partNumber, String uploadId, Payload part);
 
+   /* TODO: The heavy use of reflection for argument processing here makes this kind of overloading _slightly_ problematic; there's
+    * always the possibility that argument lists for the option/no-option case could diverge.  Optional args have their
+    * own problems in this case... so just live with this for now. */
+   String uploadPart(String bucketName, String key, int partNumber, String uploadId, Payload part, PutObjectOptions options);
+
    /**
     *
     This operation completes a multipart upload by assembling previously uploaded parts.

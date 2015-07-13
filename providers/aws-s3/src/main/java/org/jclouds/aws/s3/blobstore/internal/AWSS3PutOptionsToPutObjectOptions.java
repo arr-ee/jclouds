@@ -14,21 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.aws.s3.blobstore.strategy;
+package org.jclouds.aws.s3.blobstore.internal;
 
-import org.jclouds.aws.s3.blobstore.strategy.internal.SequentialMultipartUploadStrategy;
-import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.options.PutOptions;
+import org.jclouds.s3.blobstore.options.S3PutOptions;
+import org.jclouds.s3.options.PutObjectOptions;
 
-import com.google.inject.ImplementedBy;
+import com.google.common.base.Function;
 
 /**
- * @see <a href="http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?qfacts.html">AWS Documentation</a>
+ * Encapsulation of common functionality for converting from a PutOptions instance to PutObjectOptions
+ * for AWS S3 operations.
  */
-@ImplementedBy(SequentialMultipartUploadStrategy.class)
-public interface MultipartUploadStrategy extends MultipartUpload {
-	
-   String execute(String container, Blob blob);
-   
-   String execute(String container, Blob blob, PutOptions options);
+public class AWSS3PutOptionsToPutObjectOptions implements
+Function<PutOptions, PutObjectOptions> {
+
+	@Override
+	public PutObjectOptions apply(PutOptions putOptions) {
+
+		if (putOptions == null || (! (putOptions instanceof S3PutOptions))) { return PutObjectOptions.DEFAULTS; }
+
+		S3PutOptions s3Option = (S3PutOptions)putOptions;
+		return s3Option.usesServerSideEncryption() ? 
+				PutObjectOptions.builder().serverSideEncryption().build() :
+					PutObjectOptions.DEFAULTS;
+	}
 }

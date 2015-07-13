@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import javax.inject.Named;
 
 import org.jclouds.aws.s3.AWSS3Client;
+import org.jclouds.aws.s3.blobstore.internal.AWSS3PutOptionsToPutObjectOptions;
 import org.jclouds.aws.s3.blobstore.strategy.MultipartUploadStrategy;
 import org.jclouds.blobstore.KeyNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
@@ -34,11 +35,10 @@ import org.jclouds.io.Payload;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.logging.Logger;
 import org.jclouds.s3.blobstore.functions.BlobToObject;
-import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
 import org.jclouds.s3.options.PutObjectOptions;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
@@ -62,6 +62,9 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
    private final BlobToObject blobToObject;
    private final MultipartUploadSlicingAlgorithm algorithm;
    private final PayloadSlicer slicer;
+   
+   /* In theory this could be made injectable if we find ourselves needing multiple impls */
+   private final Function<PutOptions, PutObjectOptions> putOptionsConverter = new AWSS3PutOptionsToPutObjectOptions();
 
    @Inject
    public SequentialMultipartUploadStrategy(AWSS3Client client, BlobToObject blobToObject,
@@ -71,23 +74,15 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
       this.algorithm = checkNotNull(algorithm, "algorithm");
       this.slicer = checkNotNull(slicer, "slicer");
    }
-   
-   private PutObjectOptions createPutObjectOptions(PutOptions[] options) {
-	   
-	   Preconditions.checkArgument(options != null, "Input PutOptions can't be null");
-	   Preconditions.checkArgument(options.length <= 1,"We don't support multiple PutOptions");
-	   if (options.length == 0) { return PutObjectOptions.DEFAULTS; }
-	   PutOptions option = options[0];
-	   if (option == null || (! (option instanceof S3PutOptions))) { return PutObjectOptions.DEFAULTS; }
-	   
-	   S3PutOptions s3Option = (S3PutOptions)option;	   
-	   return s3Option.usesServerSideEncryption() ? 
-			   PutObjectOptions.builder().serverSideEncryption().build() :
-				   PutObjectOptions.DEFAULTS;
+      
+   @Override
+   public String execute(String container, Blob blob) {
+
+	   return execute(container, blob, PutOptions.NONE);
    }
 
    @Override
-   public String execute(String container, Blob blob, PutOptions... options) {
+   public String execute(String container, Blob blob, PutOptions putOptions) {
 	   
       String key = blob.getMetadata().getName();
       ContentMetadata metadata = blob.getMetadata().getContentMetadata();
@@ -97,6 +92,8 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
             "please invoke payload.getContentMetadata().setContentLength(length) prior to multipart upload");
       long chunkSize = algorithm.calculateChunkSize(length);
       int partCount = algorithm.getParts();
+      
+      PutObjectOptions options = putOptionsConverter.apply(putOptions);
       if (partCount > 0) {
          ObjectMetadataBuilder builder = ObjectMetadataBuilder.create().key(key)
             .contentType(metadata.getContentType())
@@ -104,12 +101,12 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
             .contentEncoding(metadata.getContentEncoding())
             .contentLanguage(metadata.getContentLanguage())
             .userMetadata(blob.getMetadata().getUserMetadata());
-         String uploadId = client.initiateMultipartUpload(container, builder.build(), createPutObjectOptions(options));
+         String uploadId = client.initiateMultipartUpload(container, builder.build(), options);
          try {
             SortedMap<Integer, String> etags = Maps.newTreeMap();
             for (Payload part : slicer.slice(payload, chunkSize)) {
                int partNum = algorithm.getNextPart();
-               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags);
+               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags, options);
             }
             return client.completeMultipartUpload(container, key, uploadId, etags);
          } catch (RuntimeException ex) {
@@ -119,15 +116,15 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
       } else {
          // TODO: find a way to disable multipart. if we pass the original
          // options, it goes into a stack overflow
-         return client.putObject(container, blobToObject.apply(blob), createPutObjectOptions(options));
+         return client.putObject(container, blobToObject.apply(blob), options);
       }
    }
 
    private void prepareUploadPart(String container, String key, String uploadId, int part, Payload chunkedPart,
-         long offset, SortedMap<Integer, String> etags) {
+         long offset, SortedMap<Integer, String> etags, PutObjectOptions options) {
       String eTag = null;
       try {
-         eTag = client.uploadPart(container, key, part, uploadId, chunkedPart);
+         eTag = client.uploadPart(container, key, part, uploadId, chunkedPart, options);
          etags.put(Integer.valueOf(part), eTag);
       } catch (KeyNotFoundException e) {
          // note that because of eventual consistency, the upload id may not be
@@ -135,7 +132,7 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
 
          // we may also choose to implement ListParts and wait for the uploadId
          // to become available there.
-         eTag = client.uploadPart(container, key, part, uploadId, chunkedPart);
+         eTag = client.uploadPart(container, key, part, uploadId, chunkedPart, options);
          etags.put(Integer.valueOf(part), eTag);
       }
    }

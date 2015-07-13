@@ -28,14 +28,21 @@ public class CreateDirectoryOptions {
 
 	public static CreateDirectoryOptions DEFAULTS = new CreateDirectoryOptions();
 	
-	/* Directory creation is handled at the blobstore level which prevents service-specific customizations
-	 * at an impl level.  To get around this problem impls of this class are allowed to define how they
-	 * should be translated into PutOptions impls.  This is only a semi-ridiculous way to handle this problem;
-	 * we use Optional to allow impls to indicate that they have no sane way of converting themselves into
-	 * a PutOptions impl.
+	/* A quick hack to get around something of a scoping problem.  Directory creation is handled at the 
+	 * blobstore level which prevents service-specific customizations via server-specific subclasses...
+	 * the handler for multipart uploads is (by design) supposed to be agnostic about the specific service
+	 * in play.  This is patently ridiculous (as the very existence of DirectoryCreationOptions indicates)
+	 * but it's what we have.
 	 * 
-	 * It's entirely reasonable that some services may not use PUT for directory creation... if this becomes
-	 * an issue we'll have to add additional conversion functions here. */
+	 * Considered a number of options here, including allowing server-specific Guice modules to inject their
+	 * own translators... but everything flounders on the fact that in the end the multipart upload impl 
+	 * (at the blobstore level) would have to have knowledge of the service used... and there's no way to do that.
+	 * 
+	 * Compromise with this approach; by allowing CreateDirectoryOptions instances to create a PutOptions object
+	 * based on their data we can do everything in terms of the blobstore interfaces only.  This is kinda dumb
+	 * (there's no real reason we should assume that directory creation _requires_ a PUT at all) but not
+	 * completely dumb.  We can use Optional to indicate when certain answers don't make sense for a given
+	 * impl.... and if we find it necessary to generate other types of configs we can add them later. */	
 	public Optional<PutOptions> toPutOptions() {
 		
 		return Optional.absent();
