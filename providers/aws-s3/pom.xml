@@ -25,7 +25,7 @@
     <version>1.8.0</version>
     <relativePath>../../project/pom.xml</relativePath>
   </parent>
-  <groupId>org.apache.jclouds.provider</groupId>
+  <groupId>arre.jclouds.provider</groupId>
   <artifactId>aws-s3</artifactId>
   <name>jclouds Amazon Simple Storage Service (S3) provider</name>
   <description>Simple Storage Service (S3) implementation targeted to Amazon Web Services</description>
@@ -123,6 +123,13 @@
       </exclusions>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>clojars</id>
+      <name>Clojars repository</name>
+      <url>https://clojars.org/repo</url>
+    </repository>
+  </distributionManagement>
 
   <profiles>
     <profile>
