@@ -17,6 +17,7 @@
 package org.jclouds.s3.blobstore.options;
 
 import org.jclouds.blobstore.options.PutOptions;
+import org.jclouds.s3.options.PutObjectOptions.Builder;
 
 /**
  * A truly immutable PutOptions impl for S3 operations.  Includes a proper builder for this immutable structure;
@@ -55,6 +56,8 @@ public class S3PutOptions extends PutOptions {
 	   	
 	public static Builder builder() { return new Builder(); }
 	
+	public static Builder builder(S3PutOptions template) { return new Builder(template); }
+	
 	public static class Builder {
 
 		/* Define builder state; default values for this state are explicitly set in the constructor. */
@@ -67,6 +70,12 @@ public class S3PutOptions extends PutOptions {
 			this.multipart = false;
 		}
 		
+		private Builder(S3PutOptions template) {
+			
+			this.useServerSideEncryption = template.useServerSideEncryption;
+			this.multipart = template.isMultipart();
+		}
+		
 		public Builder multipart() {
 			
 			this.multipart = true;
@@ -76,6 +85,12 @@ public class S3PutOptions extends PutOptions {
 		public Builder serverSideEncryption() {
 			
 			this.useServerSideEncryption = true;
+			return this;
+		}
+		
+		public Builder disableServerSideEncryption() {
+			
+			this.useServerSideEncryption = false;
 			return this;
 		}
 				

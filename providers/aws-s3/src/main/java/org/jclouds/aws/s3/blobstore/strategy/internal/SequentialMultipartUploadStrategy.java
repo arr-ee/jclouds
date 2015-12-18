@@ -104,9 +104,10 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
          String uploadId = client.initiateMultipartUpload(container, builder.build(), options);
          try {
             SortedMap<Integer, String> etags = Maps.newTreeMap();
+            PutObjectOptions partOptions = PutObjectOptions.builder(options).disableServerSideEncryption().build();
             for (Payload part : slicer.slice(payload, chunkSize)) {
                int partNum = algorithm.getNextPart();
-               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags, options);
+               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags, partOptions);
             }
             return client.completeMultipartUpload(container, key, uploadId, etags);
          } catch (RuntimeException ex) {
