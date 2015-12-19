@@ -97,8 +97,6 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
 	
 	public static Builder builder() { return new Builder(); }
 	
-	public static Builder builder(PutObjectOptions template) { return new Builder(template); }
-
 	public static class Builder {
 
 		private boolean useServerSideEncryption;
@@ -106,28 +104,16 @@ public class PutObjectOptions extends BaseHttpRequestOptions {
 
 		protected Builder() {
 
-			this.useServerSideEncryption = DEFAULT_SERVER_SIDE_ENCRYPTION;
-			this.acl = DEFAULT_ACCESS_POLICY;
+			this.useServerSideEncryption = DEFAULTS.usesServerSideEncryption();
+			this.acl = DEFAULTS.getAcl();
 		}
 		
-		protected Builder(PutObjectOptions template) {
-			
-			this.useServerSideEncryption = template.useServerSideEncryption;
-			this.acl = template.acl;
-		}
-
 		public Builder serverSideEncryption() {
 
 			this.useServerSideEncryption = true;
 			return this;
 		}
 		
-		public Builder disableServerSideEncryption() {
-			
-			this.useServerSideEncryption = false;
-			return this;
-		}
-
 		public Builder acl(CannedAccessPolicy acl) {
 
 			this.acl = acl;
