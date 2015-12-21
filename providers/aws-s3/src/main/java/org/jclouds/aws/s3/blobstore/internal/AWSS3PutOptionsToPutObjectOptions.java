@@ -33,42 +33,39 @@ Function<PutOptions, AWSS3PutOptionsToPutObjectOptions.ReturnValue> {
 	public static class ReturnValue {
 		
 		private final PutObjectOptions mainOptions;
-		private final PutObjectOptions partOptions;
 		
-		public ReturnValue(PutObjectOptions mainOptions, PutObjectOptions partOptions) {
+		public ReturnValue(boolean useServerSideEncryption) {
 			
-			this.mainOptions = mainOptions;
-			this.partOptions = partOptions;
+			PutObjectOptions.Builder builder = PutObjectOptions.builder();
+			if (useServerSideEncryption) { builder.serverSideEncryption(); }
+			this.mainOptions = builder.build();
 		}
 
 		public PutObjectOptions getMainOptions() {
 			return mainOptions;
 		}
 
+		/* Part options are always fixed at defaults due to OPSC-7247.  This may change if we start supporting
+		 * additional S3 options (ACLs etc.) in future ops. */
 		public PutObjectOptions getPartOptions() {
-			return partOptions;
+			return PutObjectOptions.DEFAULTS;
 		}
 	}
+
+	/* We can get away with this because yes/no to server-side encryption is the only axis of variation at this point. */
+	private static final ReturnValue USE_SERVER_SIDE_ENCRYPTION = new ReturnValue(true);
+	private static final ReturnValue NO_SERVER_SIDE_ENCRYPTION = new ReturnValue(false);
 
 	@Override
 	public ReturnValue apply(PutOptions putOptions) {
 
 		if (putOptions == null || (! (putOptions instanceof S3PutOptions))) { 
-			return new ReturnValue(PutObjectOptions.DEFAULTS, PutObjectOptions.DEFAULTS); }
+			return NO_SERVER_SIDE_ENCRYPTION;
+		}
 
 		assert (putOptions instanceof S3PutOptions);
-		S3PutOptions s3Option = (S3PutOptions)putOptions;
 		
-		/* 
-		 * OPSC-7247
-		 * 
-		 * PUT ops for individual parts should _not_ include the server-side encryption header, so return
-		 * a pair of PutObjectOptions in all cases to support this transparently.
-		 */
-		return new ReturnValue(
-				s3Option.usesServerSideEncryption() ? 
-						PutObjectOptions.builder().serverSideEncryption().build() :
-							PutObjectOptions.DEFAULTS,
-				PutObjectOptions.DEFAULTS);
+		S3PutOptions s3Option = (S3PutOptions)putOptions;
+		return s3Option.usesServerSideEncryption() ? USE_SERVER_SIDE_ENCRYPTION : NO_SERVER_SIDE_ENCRYPTION;
 	}
 }
