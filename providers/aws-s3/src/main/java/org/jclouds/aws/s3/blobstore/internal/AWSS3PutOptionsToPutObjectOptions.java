@@ -29,7 +29,10 @@ import com.google.common.base.Function;
 public class AWSS3PutOptionsToPutObjectOptions implements
 Function<PutOptions, AWSS3PutOptionsToPutObjectOptions.ReturnValue> {
 	
-	// Oh look, it's a tuple!  Or at least it would be if, you know, Java didn't have opinions about such things.
+	/* Create a single default instance to return in cases where the defaults are called for */
+	private static PutObjectOptions DEFAULT_PUT_OBJECT_OPTIONS = PutObjectOptions.builder().build();
+
+	/* Oh look, it's a tuple!  Or at least it would be if, you know, Java didn't have opinions about such things. */
 	public static class ReturnValue {
 		
 		private final PutObjectOptions mainOptions;
@@ -48,7 +51,7 @@ Function<PutOptions, AWSS3PutOptionsToPutObjectOptions.ReturnValue> {
 		/* Part options are always fixed at defaults due to OPSC-7247.  This may change if we start supporting
 		 * additional S3 options (ACLs etc.) in future ops. */
 		public PutObjectOptions getPartOptions() {
-			return PutObjectOptions.DEFAULTS;
+			return DEFAULT_PUT_OBJECT_OPTIONS;
 		}
 	}
 

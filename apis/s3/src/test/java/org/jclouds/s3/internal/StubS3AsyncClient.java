@@ -188,9 +188,12 @@ public class StubS3AsyncClient implements S3AsyncClient {
                + sourceObject));
    }
 
+   /* Create a single default instance to return in cases where the defaults are called for */
+   private static PutObjectOptions DEFAULT_PUT_OBJECT_OPTIONS = PutObjectOptions.builder().build();
+
    public ListenableFuture<String> putObject(final String bucketName, final S3Object object,
             PutObjectOptions... nullableOptions) {
-      final PutObjectOptions options = (nullableOptions.length == 0) ? PutObjectOptions.DEFAULTS : nullableOptions[0];
+      final PutObjectOptions options = (nullableOptions.length == 0) ? DEFAULT_PUT_OBJECT_OPTIONS : nullableOptions[0];
       if (options.getAcl() != null)
          keyToAcl.put(bucketName + "/" + object.getMetadata().getKey(), options.getAcl());
       return blobStore.putBlob(bucketName, object2Blob.apply(object));
