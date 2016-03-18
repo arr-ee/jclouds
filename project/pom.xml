@@ -84,7 +84,7 @@
     <url>https://git-wip-us.apache.org/repos/asf?p=jclouds.git</url>
     <tag>jclouds-1.8.0-rc1</tag>
   </scm>
-  
+
   <repositories>
     <repository>
       <id>apache-snapshots</id>
@@ -341,7 +341,7 @@
           <arguments>-Pdoc -Papache-release ${arguments}</arguments>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -362,7 +362,7 @@
             <exclude>**/src/test/resources/**/*.txt</exclude>
             <exclude>**/src/test/resources/**/*.gz</exclude>
             <exclude>**/src/test/resources/**/*.xml</exclude>
-            
+
             <!-- META-INF/services files -->
             <exclude>**/services/*LoggingModule</exclude>
             <exclude>**/services/*ApiMetadata</exclude>
@@ -418,101 +418,6 @@
             <exclude>gc.log</exclude>
           </excludes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.ning.maven.plugins</groupId>
-        <artifactId>maven-duplicate-finder-plugin</artifactId>
-        <version>1.0.5</version>
-        <configuration>
-          <exceptions>
-            <exception>
-              <!-- CloudSigma bundles conflict between api and providers-->
-              <conflictingDependencies>
-                <dependency>
-                  <groupId>org.apache.jclouds.api</groupId>
-                  <artifactId>cloudsigma</artifactId>
-                  <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                  <groupId>org.apache.jclouds.provider</groupId>
-                  <artifactId>cloudsigma-lvs</artifactId>
-                  <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                  <groupId>org.apache.jclouds.provider</groupId>
-                  <artifactId>cloudsigma-zrh</artifactId>
-                  <version>${project.version}</version>
-                </dependency>
-              </conflictingDependencies>
-              <packages>
-                <package>org.jclouds.cloudsigma</package>
-              </packages>
-            </exception>
-            <exception>
-              <!-- Google App Engine Deps, some google classes are duplicated between packages -->
-              <conflictingDependencies>
-                <dependency>
-                  <groupId>com.google.appengine</groupId>
-                  <artifactId>appengine-api-1.0-sdk</artifactId>
-                  <version>1.6.5</version>
-                </dependency>
-                <dependency>
-                  <groupId>com.google.appengine</groupId>
-                  <artifactId>appengine-testing</artifactId>
-                  <version>1.6.5</version>
-                  <scope>test</scope>
-                </dependency>
-              </conflictingDependencies>
-              <packages>
-                <package>com.google</package>
-              </packages>
-            </exception>
-            <exception>
-              <conflictingDependencies>
-                <dependency>
-                  <groupId>com.jcraft</groupId>
-                  <artifactId>jsch.agentproxy.core</artifactId>
-                  <version>0.0.7</version>
-                </dependency>
-                <dependency>
-                  <groupId>com.jcraft</groupId>
-                  <artifactId>jsch.agentproxy.connector-factory</artifactId>
-                  <version>0.0.7</version>
-                </dependency>
-              </conflictingDependencies>
-              <packages>
-                <package>com.jcraft.jsch.agentproxy</package>
-              </packages>
-            </exception>
-          </exceptions>
-          <ignoredResources>
-            <!-- For all the jetty packages -->
-            <ignoredResource>about\.html</ignoredResource>
-            <!-- There are several situations where a test-jar and another test-jar or a bundle conflict on these artifacts -->
-            <ignoredResource>log4j.xml</ignoredResource>
-            <ignoredResource>os.xml</ignoredResource>
-            <ignoredResource>virtualhardwaresection.xml</ignoredResource>
-            <ignoredResource>logback.xml</ignoredResource>
-            <ignoredResource>amzn_images.xml</ignoredResource>
-            <ignoredResource>test.jks</ignoredResource>
-            <ignoredResource>CreateInternetService-options-test.xml</ignoredResource>
-            <ignoredResource>.gitattributes</ignoredResource>
-            <ignoredResource>OSGI-OPT/bnd.bnd</ignoredResource>
-            <!-- For bouncycastle -->
-            <ignoredResource>META-INF/BCKEY.DSA</ignoredResource>
-            <ignoredResource>META-INF/BCKEY.SF</ignoredResource>
-          </ignoredResources>
-          <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
-          <skip>${skipDuplicateFinder}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -927,7 +832,7 @@
                 <configuration>
                   <descriptors>
                     <descriptor>src-descriptor.xml</descriptor>
-                    <descriptor>provided-dependencies-descriptor.xml</descriptor>                                        
+                    <descriptor>provided-dependencies-descriptor.xml</descriptor>
                     <descriptor>jar-with-dependencies-no-core-no-apis-descriptor.xml</descriptor>
                   </descriptors>
                 </configuration>
@@ -943,7 +848,7 @@
           </plugin>
         </plugins>
       </build>
-    </profile>        
+    </profile>
     <profile>
       <id>site</id>
       <build>
@@ -1028,7 +933,7 @@
               <configLocation>resources/checkstyle.xml</configLocation>
             </configuration>
           </plugin>
-        </plugins>            
+        </plugins>
       </build>
     </profile>
     <profile>

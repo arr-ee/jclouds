@@ -25,7 +25,7 @@
     <version>1.8.0</version>
     <relativePath>../../project/pom.xml</relativePath>
   </parent>
-  <groupId>org.apache.jclouds.api</groupId>
+  <groupId>com.datastax.opscenter.jclouds.api</groupId>
   <artifactId>s3</artifactId>
   <name>jclouds s3 api</name>
   <description>jclouds components to access an implementation of S3</description>
@@ -55,20 +55,20 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds</groupId>
+      <groupId>com.datastax.opscenter.jclouds</groupId>
       <artifactId>jclouds-blobstore</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds</groupId>
+      <groupId>com.datastax.opscenter.jclouds</groupId>
       <artifactId>jclouds-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds</groupId>
+      <groupId>com.datastax.opscenter.jclouds</groupId>
       <artifactId>jclouds-blobstore</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -91,7 +91,13 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  <distributionManagement>
+    <repository>
+      <id>artifactory</id>
+      <name>DS Artifactory</name>
+      <url>FIXME</url>
+    </repository>
+  </distributionManagement>
   <profiles>
     <profile>
       <id>live</id>

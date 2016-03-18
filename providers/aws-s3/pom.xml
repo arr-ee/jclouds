@@ -25,8 +25,9 @@
     <version>1.8.0</version>
     <relativePath>../../project/pom.xml</relativePath>
   </parent>
-  <groupId>arre.jclouds.provider</groupId>
+  <groupId>com.datastax.opscenter.jclouds.provider</groupId>
   <artifactId>aws-s3</artifactId>
+  <version>1.8.1</version>
   <name>jclouds Amazon Simple Storage Service (S3) provider</name>
   <description>Simple Storage Service (S3) implementation targeted to Amazon Web Services</description>
   <packaging>bundle</packaging>
@@ -67,48 +68,48 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.jclouds.api</groupId>
+      <groupId>com.datastax.opscenter.jclouds.api</groupId>
       <artifactId>s3</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds.api</groupId>
+      <groupId>com.datastax.opscenter.jclouds.api</groupId>
       <artifactId>s3</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds</groupId>
+      <groupId>com.datastax.opscenter.jclouds</groupId>
       <artifactId>jclouds-core</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.jclouds</groupId>
+      <groupId>com.datastax.opscenter.jclouds</groupId>
       <artifactId>jclouds-blobstore</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-log4j</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-apachehc</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-enterprise</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -125,9 +126,9 @@
   </dependencies>
   <distributionManagement>
     <repository>
-      <id>clojars</id>
-      <name>Clojars repository</name>
-      <url>https://clojars.org/repo</url>
+      <id>artifactory</id>
+      <name>DS Artifactory</name>
+      <url>FIXME</url>
     </repository>
   </distributionManagement>
 

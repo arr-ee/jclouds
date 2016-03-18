@@ -25,6 +25,7 @@
     <version>1.8.0</version>
     <relativePath>../project/pom.xml</relativePath>
   </parent>
+  <groupId>com.datastax.opscenter.jclouds</groupId>
   <artifactId>jclouds-blobstore</artifactId>
   <name>jclouds blobstore core</name>
   <description>jclouds components to access blobstore</description>
@@ -44,7 +45,13 @@
     </jclouds.osgi.import>
     <jclouds.osgi.export>org.jclouds.blobstore*;version="${project.version}";-noimport:=true</jclouds.osgi.export>
   </properties>
-
+  <distributionManagement>
+    <repository>
+      <id>artifactory</id>
+      <name>DS Artifactory</name>
+      <url>FIXME</url>
+    </repository>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
