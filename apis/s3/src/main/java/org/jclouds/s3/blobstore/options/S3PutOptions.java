@@ -78,7 +78,7 @@ public class S3PutOptions extends PutOptions {
 			this.useServerSideEncryption = true;
 			return this;
 		}
-				
+		
 		public S3PutOptions build() {
 			
 			return new S3PutOptions(this.multipart, this.useServerSideEncryption);

@@ -32,7 +32,7 @@ public class PutObjectOptionsTest {
 
    @Test
    public void testAclDefault() {
-      PutObjectOptions options = PutObjectOptions.DEFAULTS;
+      PutObjectOptions options = PutObjectOptions.builder().build();
       assertEquals(options.getAcl(), CannedAccessPolicy.PRIVATE);
    }
 

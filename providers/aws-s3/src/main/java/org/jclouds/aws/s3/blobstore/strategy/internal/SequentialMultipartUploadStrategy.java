@@ -64,7 +64,7 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
    private final PayloadSlicer slicer;
    
    /* In theory this could be made injectable if we find ourselves needing multiple impls */
-   private final Function<PutOptions, PutObjectOptions> putOptionsConverter = new AWSS3PutOptionsToPutObjectOptions();
+   private final Function<PutOptions, AWSS3PutOptionsToPutObjectOptions.ReturnValue> putOptionsConverter = new AWSS3PutOptionsToPutObjectOptions();
 
    @Inject
    public SequentialMultipartUploadStrategy(AWSS3Client client, BlobToObject blobToObject,
@@ -93,20 +93,21 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
       long chunkSize = algorithm.calculateChunkSize(length);
       int partCount = algorithm.getParts();
       
-      PutObjectOptions options = putOptionsConverter.apply(putOptions);
+      AWSS3PutOptionsToPutObjectOptions.ReturnValue options = putOptionsConverter.apply(putOptions);
       if (partCount > 0) {
+    	      	      	  
          ObjectMetadataBuilder builder = ObjectMetadataBuilder.create().key(key)
             .contentType(metadata.getContentType())
             .contentDisposition(metadata.getContentDisposition())
             .contentEncoding(metadata.getContentEncoding())
             .contentLanguage(metadata.getContentLanguage())
             .userMetadata(blob.getMetadata().getUserMetadata());
-         String uploadId = client.initiateMultipartUpload(container, builder.build(), options);
+         String uploadId = client.initiateMultipartUpload(container, builder.build(), options.getMainOptions());
          try {
             SortedMap<Integer, String> etags = Maps.newTreeMap();
             for (Payload part : slicer.slice(payload, chunkSize)) {
                int partNum = algorithm.getNextPart();
-               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags, options);
+               prepareUploadPart(container, key, uploadId, partNum, part, algorithm.getNextChunkOffset(), etags, options.getPartOptions());
             }
             return client.completeMultipartUpload(container, key, uploadId, etags);
          } catch (RuntimeException ex) {
@@ -116,7 +117,7 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
       } else {
          // TODO: find a way to disable multipart. if we pass the original
          // options, it goes into a stack overflow
-         return client.putObject(container, blobToObject.apply(blob), options);
+         return client.putObject(container, blobToObject.apply(blob), options.getMainOptions());
       }
    }
 

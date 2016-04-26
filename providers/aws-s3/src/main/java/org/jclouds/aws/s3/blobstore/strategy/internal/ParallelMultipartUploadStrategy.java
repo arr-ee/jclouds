@@ -41,6 +41,7 @@ import org.jclouds.aws.s3.AWSS3AsyncClient;
 import org.jclouds.aws.s3.AWSS3Client;
 import org.jclouds.aws.s3.blobstore.AWSS3AsyncBlobStore;
 import org.jclouds.aws.s3.blobstore.internal.AWSS3PutOptionsToPutObjectOptions;
+import org.jclouds.aws.s3.blobstore.options.AWSS3PutOptions;
 import org.jclouds.aws.s3.blobstore.strategy.AsyncMultipartUploadStrategy;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.internal.BlobRuntimeException;
@@ -49,6 +50,7 @@ import org.jclouds.blobstore.reference.BlobStoreConstants;
 import org.jclouds.io.Payload;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.logging.Logger;
+import org.jclouds.s3.blobstore.options.S3PutOptions;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
 import org.jclouds.s3.options.PutObjectOptions;
 import org.jclouds.util.Throwables2;
@@ -100,7 +102,7 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
    protected final PayloadSlicer slicer;
    
    /* In theory this could be made injectable if we find ourselves needing multiple impls */
-   private final Function<PutOptions, PutObjectOptions> putOptionsConverter = new AWSS3PutOptionsToPutObjectOptions();
+   private final Function<PutOptions, AWSS3PutOptionsToPutObjectOptions.ReturnValue> putOptionsConverter = new AWSS3PutOptionsToPutObjectOptions();
 
    @Inject
    public ParallelMultipartUploadStrategy(AWSS3AsyncBlobStore ablobstore, PayloadSlicer slicer,
@@ -116,7 +118,7 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
          final BlockingQueue<Integer> activeParts, 
          final Map<Integer, ListenableFuture<String>> futureParts, 
          final AtomicInteger errors, final int maxRetries, final Map<Integer, Exception> errorMap, 
-         final Queue<Part> toRetry, final CountDownLatch latch, final PutOptions options) {
+         final Queue<Part> toRetry, final CountDownLatch latch, final PutObjectOptions partObjOptions) {
       if (errors.get() > maxRetries) {
          activeParts.remove(part); // remove part from the bounded-queue without blocking
          latch.countDown();
@@ -126,7 +128,7 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
       Payload chunkedPart = slicer.slice(payload, offset, size);
       logger.debug(String.format("async uploading part %s of %s to container %s with uploadId %s", part, key, container, uploadId));
       final long start = System.currentTimeMillis();
-      final ListenableFuture<String> futureETag = client.uploadPart(container, key, part, uploadId, chunkedPart, putOptionsConverter.apply(options));
+      final ListenableFuture<String> futureETag = client.uploadPart(container, key, part, uploadId, chunkedPart, partObjOptions);
       futureETag.addListener(new Runnable() {
          @Override
          public void run() {
@@ -163,7 +165,7 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
    }
    
    @Override
-   public ListenableFuture<String> execute(final String container, final Blob blob, final PutOptions options) {
+   public ListenableFuture<String> execute(final String container, final Blob blob, final PutOptions putOptions) {
       return ioExecutor.submit(new Callable<String>() {
                @Override
                public String call() throws Exception {
@@ -185,9 +187,12 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
                      AtomicInteger errors = new AtomicInteger(0);
                      int maxRetries = Math.max(minRetries, parts * maxPercentRetries / 100);
                      int effectiveParts = remaining > 0 ? parts + 1 : parts;
+                     
+                     AWSS3PutOptionsToPutObjectOptions.ReturnValue options = putOptionsConverter.apply(putOptions);
+                     
                      try {
                         uploadId = client.initiateMultipartUpload(container,
-                                 ObjectMetadataBuilder.create().key(key).build()); // TODO md5
+                                 ObjectMetadataBuilder.create().key(key).build(), options.getMainOptions()); // TODO md5
                         logger.debug(String.format("initiated multipart upload of %s to container %s" + 
                               " with uploadId %s consisting from %s part (possible max. retries: %d)", 
                               key, container, uploadId, effectiveParts, maxRetries));
@@ -197,19 +202,20 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
                         SortedMap<Integer, String> etags = new ConcurrentSkipListMap<Integer, String>();
                         CountDownLatch latch = new CountDownLatch(effectiveParts);
                         int part;
+                        
                         while ((part = algorithm.getNextPart()) <= parts) {
                            Integer partKey = Integer.valueOf(part);
                            activeParts.put(partKey);
                            prepareUploadPart(container, key, uploadId, partKey, payload, 
                                  algorithm.getNextChunkOffset(), chunkSize, etags, 
-                                 activeParts, futureParts, errors, maxRetries, errorMap, toRetry, latch, options);
+                                 activeParts, futureParts, errors, maxRetries, errorMap, toRetry, latch, options.getPartOptions());
                         }
                         if (remaining > 0) {
                            Integer partKey = Integer.valueOf(part);
                            activeParts.put(partKey);
                            prepareUploadPart(container, key, uploadId, partKey, payload, 
                                  algorithm.getNextChunkOffset(), remaining, etags, 
-                                 activeParts, futureParts, errors, maxRetries, errorMap, toRetry, latch, options);
+                                 activeParts, futureParts, errors, maxRetries, errorMap, toRetry, latch, options.getPartOptions());
                         }
                         latch.await();
                         // handling retries
@@ -222,7 +228,7 @@ public class ParallelMultipartUploadStrategy implements AsyncMultipartUploadStra
                               activeParts.put(partKey);
                               prepareUploadPart(container, key, uploadId, partKey, payload, 
                                     failedPart.getOffset(), failedPart.getSize(), etags, 
-                                    activeParts, futureParts, errors, maxRetries, errorMap, toRetry, retryLatch, options);
+                                    activeParts, futureParts, errors, maxRetries, errorMap, toRetry, retryLatch, options.getPartOptions());
                            }
                            retryLatch.await();
                         }
